@@ -1,4 +1,5 @@
 import Navbar from "@/components/navbar";
+import { ScrollProgress } from "@/components/scroll-progress";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data/resume";
@@ -63,6 +64,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="light">
           <TooltipProvider delayDuration={0}>
+            <ScrollProgress />
             {children}
             <Navbar />
           </TooltipProvider>
