@@ -42,6 +42,24 @@ Built with next.js, [shadcn/ui](https://ui.shadcn.com/), and [magic ui](https://
 
 5. Open the [Config file](./src/data/resume.tsx) and make changes
 
+# Environment Variables and Secrets
+
+This project uses Notion as a CMS for the blog. To set up the connection:
+
+1. Copy the `.env.example` file to `.env.local`:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Create a Notion integration at [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
+
+3. Share your Notion database with your integration
+
+4. Update the values in `.env.local` with your Notion integration token and database ID
+
+**Important:** Never commit your `.env.local` file to version control. It's already excluded in the `.gitignore` file to protect your secrets.
+
 # License
 
 Licensed under the [MIT license](https://github.com/dillionverma/portfolio/blob/main/LICENSE.md).
