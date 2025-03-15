@@ -1,12 +1,12 @@
-import { getBlogPosts, getPost } from "@/data/blog";
 import { DATA } from "@/data/resume";
 import { formatDate } from "@/lib/utils";
+import { getNotionPost, getNotionPosts } from "@/lib/notion";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts();
+  const posts = await getNotionPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -17,7 +17,11 @@ export async function generateMetadata({
     slug: string;
   };
 }): Promise<Metadata | undefined> {
-  let post = await getPost(params.slug);
+  let post = await getNotionPost(params.slug);
+  
+  if (!post) {
+    return;
+  }
 
   let {
     title,
@@ -25,7 +29,7 @@ export async function generateMetadata({
     summary: description,
     image,
   } = post.metadata;
-  let ogImage = image ? `${DATA.url}${image}` : `${DATA.url}/og?title=${title}`;
+  let ogImage = image || `${DATA.url}/og?title=${title}`;
 
   return {
     title,
@@ -58,7 +62,7 @@ export default async function Blog({
     slug: string;
   };
 }) {
-  let post = await getPost(params.slug);
+  let post = await getNotionPost(params.slug);
 
   if (!post) {
     notFound();
@@ -77,9 +81,7 @@ export default async function Blog({
             datePublished: post.metadata.publishedAt,
             dateModified: post.metadata.publishedAt,
             description: post.metadata.summary,
-            image: post.metadata.image
-              ? `${DATA.url}${post.metadata.image}`
-              : `${DATA.url}/og?title=${post.metadata.title}`,
+            image: post.metadata.image || `${DATA.url}/og?title=${post.metadata.title}`,
             url: `${DATA.url}/blog/${post.slug}`,
             author: {
               "@type": "Person",
