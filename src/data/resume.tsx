@@ -4,9 +4,9 @@ import { HomeIcon, NotebookIcon } from "lucide-react";
 export const DATA = {
   name: "Sami Sheikh",
   initials: "S.S",
-  url: "https://samisheikh.link",
+  url: "https://samiis.cool",
   location: "AUS, Sydney",
-  locationLink: "https://www.google.com/maps/place/sanfrancisco",
+  locationLink: "https://www.google.com/maps/place/wollongong",
   description:
     "Cyber Security Specialist and Entrepreneur. I love building things and helping people.",
   summary:
@@ -72,27 +72,27 @@ export const DATA = {
     },
     {
       company: "Eager Trading LLC",
-      href: "https://li.me/",
+      href: "",
       badges: [],
       location: "UAE, Dubai",
       title: "IT Systems Administrator",
-      logoUrl: "/lime.svg",
+      logoUrl: "/eagertrading.jpeg",
       start: "Jun 2022",
       end: "Jul 2023",
       description:
-        "Proposed and implemented an internal ruby API for sending/receiving commands to scooters over LTE networks. Developed a fully automated bike firmware update system to handle asynchronous firmware updates of over 100,000+ scooters worldwide, and provide progress reports in real-time using React, Ruby on Rails, PostgreSQL and AWS EC2 saving hundreds of developer hours.",
+        "Implemented enterprise-grade data encryption and access control protocols, reducing unauthorized access by 25%. Developed a comprehensive incident response plan that improved recovery time by 40% and maintained over 99% network uptime through proactive monitoring and system maintenance.",
     },
     {
       company: "Eager Building Contracting LLC",
-      href: "https://mitremedia.com/",
+      href: "",
       badges: [],
       location: "UAE, Dubai",
       title: "Network and Security Administrator",
-      logoUrl: "/mitremedia.png",
+      logoUrl: "/eagerbuilding.jpeg",
       start: "Jun 2021",
       end: "Jun 2022",
       description:
-        "Designed and implemented a robust password encryption and browser cookie storage system in Ruby on Rails. Leveraged the Yahoo finance API to develop the dividend.com equity screener",
+        "Configured firewall rules and VPN access policies to secure LAN/WAN infrastructure. Resolved network and hardware issues, applied regular security patches, and supported internal teams with basic troubleshooting and cybersecurity best practices.",
     },
   ],
   education: [

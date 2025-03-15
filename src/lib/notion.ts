@@ -18,6 +18,7 @@ export interface NotionPost {
   summary: string;
   coverImage?: string;
   content: string;
+  tags?: string[];
 }
 
 // Helper function to ensure database ID is in the correct format
@@ -51,6 +52,7 @@ export async function getNotionPosts(): Promise<{
     publishedAt: string;
     summary: string;
     image?: string;
+    tags?: string[];
   };
   source: string;
 }[]> {
@@ -156,6 +158,16 @@ export async function getNotionPosts(): Promise<{
           }
         }
 
+        // Extract tags if they exist
+        let tags: string[] = [];
+        try {
+          if (page.properties?.Tags?.multi_select) {
+            tags = page.properties.Tags.multi_select.map((tag: any) => tag.name);
+          }
+        } catch (err) {
+          console.error('Error extracting tags from page:', err);
+        }
+
         return {
           slug,
           metadata: {
@@ -163,6 +175,7 @@ export async function getNotionPosts(): Promise<{
             publishedAt: handlePublishedDate(date),
             summary,
             image: coverImage,
+            tags,
           },
           source: contentHtml,
         };
@@ -182,6 +195,7 @@ export async function getNotionPost(slug: string): Promise<{
     publishedAt: string;
     summary: string;
     image?: string;
+    tags?: string[];
   };
   slug: string;
   source: string;

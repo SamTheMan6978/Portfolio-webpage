@@ -5,6 +5,8 @@ import { Particles } from "@/components/magicui/particles";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export async function generateStaticParams() {
   const posts = await getNotionPosts();
@@ -135,6 +137,23 @@ export default async function Blog({
               </p>
             )}
           </div>
+          
+          {/* Display tags if they exist */}
+          {post.metadata.tags && post.metadata.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {post.metadata.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/blog?tag=${encodeURIComponent(tag)}`}
+                  className={cn(
+                    "px-3 py-1 text-xs rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                  )}
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Main content */}
