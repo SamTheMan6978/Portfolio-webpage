@@ -8,10 +8,10 @@ export const DATA = {
   location: "AUS, Sydney",
   locationLink: "https://www.google.com/maps/place/sanfrancisco",
   description:
-    "Cyber Security Specialist turned Entrepreneur. I love building things and helping people.",
+    "Cyber Security Specialist and Entrepreneur. I love building things and helping people.",
   summary:
     "I am a final year computer science student at [UOW specialising in Cyber Security and Digital Systems Security](/#education). I am also a co-founder of [MailShield AI](https://mailshield.ai).",
-  avatarUrl: "/",
+  avatarUrl: "/pfp.jpg",
   skills: [
     "React",
     "Next.js",
