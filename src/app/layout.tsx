@@ -89,14 +89,6 @@ export default function RootLayout({
         {/* Add browser hint for faster connections */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
         
-        {/* Preload critical font resources */}
-        <link
-          rel="preload"
-          href="/_next/static/media/Inter-roman.var.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         
         <script
           type="application/ld+json"
