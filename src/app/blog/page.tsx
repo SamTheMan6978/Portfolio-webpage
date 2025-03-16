@@ -4,10 +4,30 @@ import { getNotionPosts } from "@/lib/notion";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { DATA } from "@/data/resume";
 
 export const metadata = {
   title: "Blog",
   description: "Just a collection of ideas",
+  keywords: [
+    "Cyber Security Blog",
+    "Information Security Articles",
+    "Tech Insights",
+    "Security Best Practices",
+    "InfoSec",
+    "Digital Security",
+    "Coding Tips",
+    "Personal Blog"
+  ],
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    title: "Personall Blog | Various Insights",
+    description: "Personal insights into various topics.",
+    url: `${DATA.url}/blog`,
+    type: "website",
+  }
 };
 
 // Function to strip HTML tags and get plain text excerpt

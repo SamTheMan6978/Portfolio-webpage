@@ -8,26 +8,33 @@ import { generatePersonSchema, generateWebSiteSchema } from "@/lib/structuredDat
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import Script from "next/script";
+import { CriticalCSS } from "@/components/critical-css";
 import "./globals.css";
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(DATA.url),
   title: {
-    default: DATA.name,
-    template: `%s | ${DATA.name}`,
+    default: `${DATA.name} | Cyber Security Specialist & Developer`,
+    template: `%s | ${DATA.name} - Cyber Security Portfolio`,
   },
-  description: DATA.description,
+  description: `${DATA.description} Featuring projects and expertise in cybersecurity, web development, and software engineering.`,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: `${DATA.name}`,
-    description: DATA.description,
+    title: `${DATA.name} | Cyber Security & Development Portfolio`,
+    description: `${DATA.description} Featuring projects and expertise in cybersecurity, web development, and software engineering.`,
     url: DATA.url,
-    siteName: `${DATA.name}`,
+    siteName: `${DATA.name} - Personal Portfolio`,
     locale: "en_US",
     type: "website",
   },
@@ -43,9 +50,22 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: `${DATA.name}`,
+    title: `${DATA.name} | Cyber Security Portfolio`,
     card: "summary_large_image",
+    description: `${DATA.description} Specializing in cybersecurity, information security and web development.`,
   },
+  keywords: [
+    "Cyber Security", 
+    "Web Development", 
+    "Full Stack Developer", 
+    "React", 
+    "TypeScript", 
+    "Information Security", 
+    "Portfolio", 
+    `${DATA.name}`, 
+    "Software Engineer",
+    "CISO"
+  ],
   verification: {
     google: "",
     yandex: "",
@@ -60,7 +80,24 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="canonical" href={DATA.url} />
+        <CriticalCSS />
+        
+        {/* Resource hints for external domains */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        
+        {/* Add browser hint for faster connections */}
+        <meta httpEquiv="x-dns-prefetch-control" content="on" />
+        
+        {/* Preload critical font resources */}
+        <link
+          rel="preload"
+          href="/_next/static/media/Inter-roman.var.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generatePersonSchema() }}
@@ -69,8 +106,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generateWebSiteSchema() }}
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preload" href="/pfp.jpg" as="image" />
       </head>
       <body
         className={cn(
@@ -87,8 +125,20 @@ export default function RootLayout({
         </ThemeProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
+          id="gtag-script"
         />
+        <Script
+          id="gtag-init"
+          strategy="lazyOnload"
+        >
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+          `}
+        </Script>
       </body>
     </html>
   );

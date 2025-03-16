@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useMemo } from "react";
+import { ElementType } from "react";
 
 interface BlurFadeTextProps {
   text: string;
@@ -16,6 +17,7 @@ interface BlurFadeTextProps {
   delay?: number;
   yOffset?: number;
   animateByCharacter?: boolean;
+  as?: ElementType;
 }
 const BlurFadeText = ({
   text,
@@ -25,6 +27,7 @@ const BlurFadeText = ({
   delay = 0,
   yOffset = 8,
   animateByCharacter = false,
+  as: Component = "div",
 }: BlurFadeTextProps) => {
   const defaultVariants: Variants = {
     hidden: { y: yOffset, opacity: 0, filter: "blur(8px)" },
@@ -35,7 +38,7 @@ const BlurFadeText = ({
 
   if (animateByCharacter) {
     return (
-      <div className="flex">
+      <Component className="flex">
         <AnimatePresence>
           {characters.map((char, i) => (
             <motion.span
@@ -56,12 +59,12 @@ const BlurFadeText = ({
             </motion.span>
           ))}
         </AnimatePresence>
-      </div>
+      </Component>
     );
   }
 
   return (
-    <div className="flex">
+    <Component className="flex">
       <AnimatePresence>
         <motion.span
           initial="hidden"
@@ -78,7 +81,7 @@ const BlurFadeText = ({
           {text}
         </motion.span>
       </AnimatePresence>
-    </div>
+    </Component>
   );
 };
 

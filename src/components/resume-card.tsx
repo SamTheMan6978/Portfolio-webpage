@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { ReactNode } from "react";
 
 interface ResumeCardProps {
   logoUrl: string;
   altText: string;
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   href?: string;
   badges?: readonly string[];
   period: string;
@@ -44,7 +44,7 @@ export const ResumeCard = ({
       className="block cursor-pointer"
       onClick={handleClick}
     >
-      <Card className="flex">
+      <Card className="flex bg-transparent">
         <div className="flex-none">
           <Avatar className="border size-12 m-auto bg-muted-background dark:bg-foreground">
             <AvatarImage

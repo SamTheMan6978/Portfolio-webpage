@@ -14,16 +14,71 @@ const nextConfig = {
       'prod-files-secure.s3.us-west-2.amazonaws.com',
     ],
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60, // Cache images for at least 60 seconds
   },
   // Performance optimizations
   poweredByHeader: false, // Remove X-Powered-By header
   compress: true, // Enable gzip compression
   swcMinify: true, // Use SWC minifier for faster builds
-  // Experimental features for performance
-  experimental: {
-    optimizeFonts: true,
-    // Enable modern JS features with reduced bundle size
-    serverActions: true,
+  
+  // Font optimization is now part of the main config, not experimental
+  optimizeFonts: true,
+  
+  // URL Canonicalization
+  async redirects() {
+    return [
+      // Redirect www to non-www (permanent redirect)
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.samiis.cool',
+          },
+        ],
+        destination: 'https://samiis.cool/:path*',
+        permanent: true,
+      },
+      // Remove trailing slashes
+      {
+        source: '/:path+/',
+        destination: '/:path+',
+        permanent: true,
+      },
+    ];
+  },
+  
+  // Add response headers for better caching and performance
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400',
+          },
+        ],
+      },
+    ];
   },
 };
 

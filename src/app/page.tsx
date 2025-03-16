@@ -10,16 +10,17 @@ import { DATA } from "@/data/resume";
 import Link from "next/link";
 import Markdown from "react-markdown";
 import { Metadata } from "next";
+import { MapPin } from "lucide-react";
 
 const BLUR_FADE_DELAY = 0.04;
 
 export const metadata: Metadata = {
   metadataBase: new URL(DATA.url),
-  title: DATA.name,
-  description: DATA.description,
+  title: `${DATA.name}`,
+  description: `${DATA.description}`,
   openGraph: {
-    title: DATA.name,
-    description: DATA.description,
+    title: `${DATA.name}`,
+    description: `${DATA.description}`,
     url: DATA.url,
     siteName: DATA.name,
     locale: "en_US",
@@ -46,10 +47,22 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: DATA.name,
-    description: DATA.description,
+    title: `${DATA.name} | Cyber Security Specialist & Full Stack Developer`,
+    description: `${DATA.description} Specializing in cybersecurity, web development, and software engineering with expertise in React, TypeScript, and information security.`,
     images: [`${DATA.url}/og`],
   },
+  keywords: [
+    "Cyber Security", 
+    "Web Development", 
+    "Full Stack Developer", 
+    "React", 
+    "TypeScript", 
+    "Information Security", 
+    "CISO", 
+    "Portfolio", 
+    `${DATA.name}`, 
+    "Software Engineer"
+  ],
 };
 
 export default function Page() {
@@ -72,6 +85,7 @@ export default function Page() {
                   className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none"
                   yOffset={8}
                   text={`Hi, I'm ${DATA.name.split(" ")[0]} 👋`}
+                  as="h1"
                 />
                 <BlurFadeText
                   className="max-w-[600px] md:text-xl"
@@ -94,7 +108,7 @@ export default function Page() {
         </section>
         <section id="about">
           <BlurFade delay={BLUR_FADE_DELAY * 3}>
-            <h2 className="text-xl font-bold">About</h2>
+            <h2 className="text-2xl font-bold">About</h2>
           </BlurFade>
           <BlurFade delay={BLUR_FADE_DELAY * 4}>
             <Markdown className="prose max-w-full text-pretty font-sans text-sm text-muted-foreground dark:prose-invert">
@@ -105,24 +119,34 @@ export default function Page() {
         <section id="work">
           <div className="flex min-h-0 flex-col gap-y-3">
             <BlurFade delay={BLUR_FADE_DELAY * 5}>
-              <h2 className="text-xl font-bold">Work Experience</h2>
+              <h2 className="text-2xl font-bold">Work Experience</h2>
             </BlurFade>
             {DATA.work.map((work, id) => (
               <BlurFade
                 key={work.company}
                 delay={BLUR_FADE_DELAY * 6 + id * 0.05}
               >
-                <ResumeCard
-                  key={work.company}
-                  logoUrl={work.logoUrl}
-                  altText={work.company}
-                  title={work.company}
-                  subtitle={work.title}
-                  href={work.href}
-                  badges={work.badges}
-                  period={`${work.start} - ${work.end ?? "Present"}`}
-                  description={work.description}
-                />
+                <div className="space-y-1">
+                  <ResumeCard
+                    key={work.company}
+                    logoUrl={work.logoUrl}
+                    altText={work.company}
+                    title={work.company}
+                    subtitle={
+                      <div className="space-y-1">
+                        <div>{work.title}</div>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          {work.location}
+                        </div>
+                      </div>
+                    }
+                    href={work.href}
+                    badges={work.badges}
+                    period={`${work.start} - ${work.end ?? "Present"}`}
+                    description={work.description}
+                  />
+                </div>
               </BlurFade>
             ))}
           </div>
@@ -130,7 +154,7 @@ export default function Page() {
         <section id="education">
           <div className="flex min-h-0 flex-col gap-y-3">
             <BlurFade delay={BLUR_FADE_DELAY * 7}>
-              <h2 className="text-xl font-bold">Education</h2>
+              <h2 className="text-2xl font-bold">Education</h2>
             </BlurFade>
             {DATA.education.map((education, id) => (
               <BlurFade
@@ -153,7 +177,7 @@ export default function Page() {
         <section id="skills">
           <div className="flex min-h-0 flex-col gap-y-3">
             <BlurFade delay={BLUR_FADE_DELAY * 9}>
-              <h2 className="text-xl font-bold">Skills</h2>
+              <h2 className="text-2xl font-bold">Skills</h2>
             </BlurFade>
             <div className="flex flex-wrap gap-1">
               {DATA.skills.map((skill, id) => (
@@ -172,7 +196,7 @@ export default function Page() {
                   <div className="inline-block rounded-lg bg-foreground text-background px-3 py-1 text-sm">
                     My Projects
                   </div>
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  <h2 className="text-2xl font-bold tracking-tighter md:text-3xl">
                     Check out my latest work
                   </h2>
                   <p className="text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -211,7 +235,7 @@ export default function Page() {
                 <div className="inline-block rounded-lg bg-foreground text-background px-3 py-1 text-sm">
                   Contact
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                <h2 className="text-2xl font-bold tracking-tighter md:text-3xl">
                   Get in Touch
                 </h2>
                 <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">

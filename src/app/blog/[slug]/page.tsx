@@ -42,6 +42,9 @@ export async function generateMetadata({
     description,
     keywords: tags,
     authors: [{ name: DATA.name, url: DATA.url }],
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -210,7 +213,13 @@ export default async function Blog({
         </div>
         
         {/* Main content */}
-        <article className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-medium prose-a:text-primary prose-img:rounded-lg">
+        <article className="prose prose-slate dark:prose-invert max-w-full 
+          prose-headings:font-medium 
+          prose-h1:text-3xl prose-h1:font-bold
+          prose-h2:text-2xl prose-h2:font-bold 
+          prose-h3:text-xl prose-h3:font-semibold
+          prose-a:text-primary 
+          prose-img:rounded-lg">
           <div dangerouslySetInnerHTML={{ __html: post.source }} />
         </article>
         
