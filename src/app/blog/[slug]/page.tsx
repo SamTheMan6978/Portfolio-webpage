@@ -2,11 +2,13 @@ import { DATA } from "@/data/resume";
 import { formatDate } from "@/lib/utils";
 import { getNotionPost, getNotionPosts } from "@/lib/notion";
 import { Particles } from "@/components/magicui/particles";
+import { generateBlogPostStructuredData, generateBreadcrumbStructuredData } from "@/lib/structuredData";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import OptimizedImage from "@/components/OptimizedImage";
 
 export async function generateStaticParams() {
   const posts = await getNotionPosts();
@@ -31,12 +33,15 @@ export async function generateMetadata({
     publishedAt: publishedTime,
     summary: description,
     image,
+    tags,
   } = post.metadata;
-  let ogImage = image || `${DATA.url}/og?title=${title}`;
+  let ogImage = image || `${DATA.url}/og?title=${encodeURIComponent(title)}`;
 
   return {
     title,
     description,
+    keywords: tags,
+    authors: [{ name: DATA.name, url: DATA.url }],
     openGraph: {
       title,
       description,
@@ -46,14 +51,21 @@ export async function generateMetadata({
       images: [
         {
           url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
         },
       ],
+      tags,
+      authors: [DATA.name],
+      siteName: DATA.name,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [ogImage],
+      creator: DATA.name,
     },
   };
 }
@@ -108,12 +120,23 @@ export default async function Blog({
               datePublished: post.metadata.publishedAt,
               dateModified: post.metadata.publishedAt,
               description: post.metadata.summary,
-              image: post.metadata.image || `${DATA.url}/og?title=${post.metadata.title}`,
+              image: post.metadata.image || `${DATA.url}/og?title=${encodeURIComponent(post.metadata.title)}`,
               url: `${DATA.url}/blog/${post.slug}`,
               author: {
                 "@type": "Person",
                 name: DATA.name,
+                url: DATA.url,
               },
+              publisher: {
+                "@type": "Person",
+                name: DATA.name,
+                url: DATA.url,
+              },
+              keywords: post.metadata.tags?.join(", ") || "",
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": `${DATA.url}/blog/${post.slug}`,
+              }
             }),
           }}
         />
