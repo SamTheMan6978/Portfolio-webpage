@@ -83,8 +83,38 @@ export default async function Blog({
     notFound();
   }
 
+  // Define breadcrumbs for structured data and UI
+  const breadcrumbs = [
+    { name: 'Home', url: DATA.url },
+    { name: 'Blog', url: `${DATA.url}/blog` },
+    { name: post.metadata.title, url: `${DATA.url}/blog/${post.slug}` }
+  ];
+
   return (
     <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: generateBlogPostStructuredData({
+            title: post.metadata.title,
+            description: post.metadata.summary,
+            publishedAt: post.metadata.publishedAt,
+            image: post.metadata.image,
+            slug: post.slug,
+            tags: post.metadata.tags,
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: generateBreadcrumbStructuredData({
+            items: breadcrumbs,
+          }),
+        }}
+      />
+
       {/* Left side particles */}
       <div className="fixed left-0 top-0 bottom-0 w-1/6 z-0 pointer-events-none">
         <Particles

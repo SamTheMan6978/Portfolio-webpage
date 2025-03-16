@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
 
+# Sitemap
 Sitemap: https://samiis.cool/sitemap.xml 
+
+# Crawl delay
+Crawl-delay: 10
+
+# Host
+Host: https://samiis.cool 

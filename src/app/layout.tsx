@@ -4,8 +4,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data/resume";
 import { cn } from "@/lib/utils";
+import { generatePersonSchema, generateWebSiteSchema } from "@/lib/structuredData";
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const fontSans = FontSans({
@@ -56,6 +58,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="canonical" href={DATA.url} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: generatePersonSchema() }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: generateWebSiteSchema() }}
+        />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased max-w-2xl mx-auto py-12 sm:py-24 px-6",

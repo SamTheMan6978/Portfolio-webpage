@@ -70,4 +70,47 @@ export function generateBreadcrumbStructuredData({
   };
 
   return JSON.stringify(structuredData);
+}
+
+export function generatePersonSchema(): string {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: DATA.name,
+    url: DATA.url,
+    sameAs: [
+      DATA.contact?.social?.GitHub?.url,
+      DATA.contact?.social?.LinkedIn?.url,
+    ].filter(Boolean),
+    description: DATA.description,
+    image: `${DATA.url}${DATA.avatarUrl}`,
+    email: DATA.contact?.email,
+    knowsAbout: DATA.skills,
+  };
+
+  return JSON.stringify(structuredData);
+}
+
+export function generateWebSiteSchema(): string {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: DATA.name,
+    url: DATA.url,
+    description: DATA.description,
+    author: {
+      "@type": "Person",
+      name: DATA.name,
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${DATA.url}/blog?search={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  return JSON.stringify(structuredData);
 } 
