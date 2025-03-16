@@ -27,16 +27,16 @@ const nextConfig = {
   // URL Canonicalization
   async redirects() {
     return [
-      // Redirect non-www to www (permanent redirect)
+      // Redirect www to non-www (permanent redirect)
       {
         source: '/:path*',
         has: [
           {
             type: 'host',
-            value: 'samiis.cool',
+            value: 'www.samiis.cool',
           },
         ],
-        destination: 'https://www.samiis.cool/:path*',
+        destination: 'https://samiis.cool/:path*',
         permanent: true,
       },
       // Remove trailing slashes
