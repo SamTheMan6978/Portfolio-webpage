@@ -13,6 +13,7 @@ import "./globals.css";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -68,6 +69,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generateWebSiteSchema() }}
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
         className={cn(
@@ -82,6 +85,10 @@ export default function RootLayout({
             <Navbar />
           </TooltipProvider>
         </ThemeProvider>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

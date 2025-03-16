@@ -35,3 +35,23 @@ export function formatDate(date: string) {
     return `${fullDate} (${yearsAgo}y ago)`;
   }
 }
+
+// Helper function to dynamically import assets
+export const dynamicImport = async (path: string) => {
+  try {
+    return await import(path);
+  } catch (error) {
+    console.error(`Failed to dynamically import: ${path}`, error);
+    return null;
+  }
+};
+
+// Function to load images lazily
+export const lazyLoadImage = (src: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = (error) => reject(error);
+  });
+};

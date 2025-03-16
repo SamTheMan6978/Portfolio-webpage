@@ -15,6 +15,16 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  // Performance optimizations
+  poweredByHeader: false, // Remove X-Powered-By header
+  compress: true, // Enable gzip compression
+  swcMinify: true, // Use SWC minifier for faster builds
+  // Experimental features for performance
+  experimental: {
+    optimizeFonts: true,
+    // Enable modern JS features with reduced bundle size
+    serverActions: true,
+  },
 };
 
 export default nextConfig;

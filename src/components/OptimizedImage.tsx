@@ -8,6 +8,8 @@ interface OptimizedImageProps {
   height?: number;
   className?: string;
   priority?: boolean;
+  loading?: 'lazy' | 'eager';
+  quality?: number;
 }
 
 export default function OptimizedImage({
@@ -17,9 +19,14 @@ export default function OptimizedImage({
   height = 630,
   className,
   priority = false,
+  loading = 'lazy',
+  quality = 75, // Default quality set to 75 for better performance
 }: OptimizedImageProps) {
   // Check if the image is from an external source
   const isExternal = src.startsWith('http') || src.startsWith('https');
+  
+  // More granular sizes for better responsive loading
+  const imageSizes = '(max-width: 640px) 100vw, (max-width: 768px) 80vw, (max-width: 1024px) 60vw, 50vw';
   
   return (
     <div className={cn('relative overflow-hidden rounded-lg', className)}>
@@ -31,9 +38,13 @@ export default function OptimizedImage({
           width={width}
           height={height}
           priority={priority}
+          loading={loading}
+          quality={quality}
           className="object-cover"
           unoptimized={false}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={imageSizes}
+          placeholder="blur"
+          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
         />
       ) : (
         // For local images
@@ -43,8 +54,12 @@ export default function OptimizedImage({
           width={width}
           height={height}
           priority={priority}
+          loading={loading}
+          quality={quality}
           className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={imageSizes}
+          placeholder="blur"
+          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
         />
       )}
     </div>
