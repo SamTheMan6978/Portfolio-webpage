@@ -46,15 +46,15 @@ export async function middleware(request: NextRequest) {
     // Always include critical CSS and fonts
     criticalResources.push(
       '/_next/static/css/app.css; rel=preload; as=style; fetchpriority=high',
-      '/_next/static/css/main.css; rel=preload; as=style; fetchpriority=high',
-      '</fonts/inter.woff2>; rel=preload; as=font; crossorigin=anonymous; fetchpriority=high',
-      '</fonts/inter-bold.woff2>; rel=preload; as=font; crossorigin=anonymous; fetchpriority=high'
+      '/_next/static/css/main.css; rel=preload; as=style; fetchpriority=high'
     );
     
     // Home page specific resources
     if (pathname === '/' || pathname === '') {
       criticalResources.push(
-        '/pfp.webp; rel=preload; as=image; fetchpriority=high'
+        '/pfp.webp; rel=preload; as=image; fetchpriority=high',
+        // Preload key JSON-LD structured data
+        '/_next/static/chunks/structured-data.js; rel=preload; as=script; fetchpriority=high'
       );
     }
     
@@ -78,10 +78,25 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
     
+    // Add cache control headers for better performance and SEO
+    const maxAgeOneYear = 60 * 60 * 24 * 365; // 1 year in seconds
+    
+    // Add different cache policies based on file types
+    if (pathname.match(/\.(css|js|woff2)$/)) {
+      // Long cache for static assets
+      response.headers.set('Cache-Control', `public, max-age=${maxAgeOneYear}, immutable`);
+    } else if (pathname.match(/\.(jpg|jpeg|png|webp|svg|ico)$/)) {
+      // Medium cache for images
+      response.headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    } else {
+      // Default cache for HTML and other documents
+      response.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    }
+    
     // Content Security Policy with resource prioritization
     response.headers.set(
       'Content-Security-Policy',
-      "default-src 'self'; img-src 'self' data: *.amazonaws.com *.notion.so; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'"
+      "default-src 'self'; img-src 'self' data: *.amazonaws.com *.notion.so https://www.google-analytics.com https://*.googletagmanager.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com"
     );
     
     return response;
