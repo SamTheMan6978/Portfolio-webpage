@@ -20,8 +20,8 @@ function BlogPostLink({ href, children, className }: { href: string; children: R
   );
 }
 
-// Add shorter revalidation time to match blog post pages
-export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+// Instead of using force-dynamic for blog listing page, use ISR with revalidation
+export const revalidate = 3600; // Revalidate every hour
 
 export const metadata = {
   title: "Blog",

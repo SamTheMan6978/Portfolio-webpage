@@ -14,11 +14,25 @@ const nextConfig = {
       'prod-files-secure.s3.us-west-2.amazonaws.com',
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60, // Cache images for at least 60 seconds
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    minimumCacheTTL: 60,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+        pathname: '/**',
+      },
+    ]
   },
   // Performance optimizations
   poweredByHeader: false, // Remove X-Powered-By header
   compress: true, // Enable gzip compression
+  
+  // Bundle optimization
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['react-markdown', '@notionhq/client', 'notion-to-md'],
+  },
   
   // URL Canonicalization
   async redirects() {
@@ -48,29 +62,38 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/((?!api/).*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600',
+            value: 'public, max-age=60, s-maxage=86400, stale-while-revalidate=604800',
           },
         ],
       },
       {
-        source: '/_next/static/(.*)',
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=15, s-maxage=60, stale-while-revalidate=300',
+          },
+        ],
+      },
+      {
+        source: '/_next/image(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=31536000',
+          },
+        ],
+      },
+      {
+        source: '/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/images/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400',
           },
         ],
       },

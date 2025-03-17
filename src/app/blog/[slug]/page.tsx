@@ -10,17 +10,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import OptimizedImage from "@/components/OptimizedImage";
 
+// Force dynamic rendering to always get fresh content
+// Use ISR instead for better performance while keeping content relatively fresh
+export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+
 // We still generate static params for all posts
 export async function generateStaticParams() {
   const posts = await getNotionPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// Shorter revalidation time to ensure fresh S3 links
-// This will rebuild pages more frequently to get fresh image URLs
-export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
-
-// Force dynamic rendering to always get fresh content
 // Uncomment this to always fetch fresh data on each request
 // export const dynamic = 'force-dynamic';
 

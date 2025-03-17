@@ -40,6 +40,9 @@ export function ProjectCard({
   links,
   className,
 }: Props) {
+  // Determine if the link is internal or external
+  const isExternalLink = href?.startsWith('http') || href?.startsWith('//');
+  
   return (
     <Card
       className={
@@ -48,6 +51,9 @@ export function ProjectCard({
     >
       <Link
         href={href || "#"}
+        prefetch={!isExternalLink} // Only prefetch internal links
+        target={isExternalLink ? "_blank" : undefined}
+        rel={isExternalLink ? "noopener noreferrer" : undefined}
         className={cn("block cursor-pointer", className)}
       >
         {video && (
@@ -101,7 +107,7 @@ export function ProjectCard({
         {links && links.length > 0 && (
           <div className="flex flex-row flex-wrap items-start gap-1">
             {links?.map((link, idx) => (
-              <Link href={link?.href} key={idx} target="_blank">
+              <Link href={link?.href} key={idx} target="_blank" rel="noopener noreferrer">
                 <Badge key={idx} className="flex gap-2 px-2 py-1 text-[10px]">
                   {link.icon}
                   {link.type}
