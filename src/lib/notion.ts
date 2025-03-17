@@ -3,6 +3,7 @@ import { NotionConverter } from 'notion-to-md';
 import { DefaultExporter } from 'notion-to-md/plugins/exporter';
 import { remark } from 'remark';
 import html from 'remark-html';
+import { proxyNotionImage, transformNotionHtmlContent } from './notion-image-proxy';
 
 // Initialize the Notion client
 const notion = new Client({
@@ -148,6 +149,9 @@ export async function getNotionPosts(): Promise<{
           .process(mdContent);
         const contentHtml = processedContent.toString();
         
+        // Apply our proxy to transform Notion image URLs in the HTML content
+        const contentHtmlWithProxiedImages = transformNotionHtmlContent(contentHtml);
+        
         // Get cover image if exists
         let coverImage;
         if (page.cover) {
@@ -155,6 +159,11 @@ export async function getNotionPosts(): Promise<{
             coverImage = page.cover.external.url;
           } else if (page.cover.type === 'file') {
             coverImage = page.cover.file.url;
+          }
+          
+          // Proxy the cover image URL if it's from Notion
+          if (coverImage) {
+            coverImage = proxyNotionImage(coverImage);
           }
         }
 
@@ -177,7 +186,7 @@ export async function getNotionPosts(): Promise<{
             image: coverImage,
             tags,
           },
-          source: contentHtml,
+          source: contentHtmlWithProxiedImages,
         };
       })
     );
