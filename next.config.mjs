@@ -7,35 +7,14 @@ const nextConfig = {
   },
   images: {
     domains: [
-      // Notion domains
       'www.notion.so',
       'notion.so',
-      'file.notion.so',
       'images.unsplash.com',
       'S3.us-west-2.amazonaws.com',
       'prod-files-secure.s3.us-west-2.amazonaws.com',
-      'secure.notion-static.com',
-      'notion-static.com',
-      // Add your own domain for the proxied images
-      process.env.VERCEL_URL ? `${process.env.VERCEL_URL}` : 'localhost',
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60, // Cache images for at least 60 seconds
-    // Alternative to domains: use remotePatterns for more flexibility
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.notion.so',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.notion-static.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.amazonaws.com',
-      },
-    ],
   },
   // Performance optimizations
   poweredByHeader: false, // Remove X-Powered-By header
