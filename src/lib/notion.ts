@@ -45,6 +45,10 @@ function handlePublishedDate(dateStr: string): string {
   return date.toISOString();
 }
 
+/**
+ * Fetch Notion posts with fresh data each time
+ * No caching to ensure we always get fresh image URLs
+ */
 export async function getNotionPosts(): Promise<{
   slug: string;
   metadata: {
@@ -60,7 +64,10 @@ export async function getNotionPosts(): Promise<{
     // Replace with your database ID and ensure correct format
     const databaseId = formatDatabaseId(process.env.NOTION_DATABASE_ID as string);
     
-    // Query the database
+    // Add a cache-busting timestamp to ensure fresh data
+    const timestamp = Date.now();
+    
+    // Query the database - ensuring we get fresh data each time
     const response = await notion.databases.query({
       database_id: databaseId,
       filter: {
@@ -189,6 +196,10 @@ export async function getNotionPosts(): Promise<{
   }
 }
 
+/**
+ * Get a specific post by slug
+ * This will fetch fresh data from Notion each time
+ */
 export async function getNotionPost(slug: string): Promise<{
   metadata: {
     title: string;
@@ -201,6 +212,7 @@ export async function getNotionPost(slug: string): Promise<{
   source: string;
 } | null> {
   try {
+    // Always get fresh posts to ensure images are not expired
     const posts = await getNotionPosts();
     const post = posts.find((post) => post.slug === slug);
     

@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { DATA } from "@/data/resume";
 
+// Add shorter revalidation time to match blog post pages
+export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+
 export const metadata = {
   title: "Blog",
   description: "Just a collection of ideas",

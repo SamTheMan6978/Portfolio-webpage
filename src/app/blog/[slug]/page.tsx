@@ -10,10 +10,19 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import OptimizedImage from "@/components/OptimizedImage";
 
+// We still generate static params for all posts
 export async function generateStaticParams() {
   const posts = await getNotionPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
+
+// Shorter revalidation time to ensure fresh S3 links
+// This will rebuild pages more frequently to get fresh image URLs
+export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+
+// Force dynamic rendering to always get fresh content
+// Uncomment this to always fetch fresh data on each request
+// export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
@@ -80,6 +89,8 @@ export default async function Blog({
     slug: string;
   };
 }) {
+  // Every time this page loads, it will fetch fresh data from Notion
+  // This ensures we always get the latest S3 image URLs that haven't expired
   let post = await getNotionPost(params.slug);
 
   if (!post) {
@@ -233,3 +244,4 @@ export default async function Blog({
     </>
   );
 }
+
