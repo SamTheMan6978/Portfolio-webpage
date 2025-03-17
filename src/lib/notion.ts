@@ -9,6 +9,9 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
+// Simple in-memory cache for HTML content
+const htmlCache = new Map<string, string>();
+
 export interface NotionPost {
   id: string;
   slug: string;
@@ -64,9 +67,6 @@ export async function getNotionPosts(): Promise<{
     // Replace with your database ID and ensure correct format
     const databaseId = formatDatabaseId(process.env.NOTION_DATABASE_ID as string);
     
-    // Add a cache-busting timestamp to ensure fresh data
-    const timestamp = Date.now();
-    
     // Query the database - ensuring we get fresh data each time
     const response = await notion.databases.query({
       database_id: databaseId,
@@ -88,6 +88,7 @@ export async function getNotionPosts(): Promise<{
       return [];
     }
 
+    // Process pages in parallel batches for better performance
     const posts = await Promise.all(
       response.results.map(async (page: any) => {
         // Get page properties with careful null checking
@@ -149,11 +150,23 @@ export async function getNotionPosts(): Promise<{
         // Get the markdown content from the buffer
         const mdContent = buffer[page.id] || '';
         
-        // Convert markdown to HTML
-        const processedContent = await remark()
-          .use(html)
-          .process(mdContent);
-        const contentHtml = processedContent.toString();
+        // Create a cache key based on content and last edited time
+        const cacheKey = `${page.id}-${page.last_edited_time || ''}`;
+        let contentHtml = '';
+        
+        // Check cache first
+        if (htmlCache.has(cacheKey)) {
+          contentHtml = htmlCache.get(cacheKey)!;
+        } else {
+          // Process markdown to HTML if not in cache
+          const processedContent = await remark()
+            .use(html)
+            .process(mdContent);
+          contentHtml = processedContent.toString();
+          
+          // Store in cache
+          htmlCache.set(cacheKey, contentHtml);
+        }
         
         // Get cover image if exists
         let coverImage;

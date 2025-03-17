@@ -10,18 +10,24 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import OptimizedImage from "@/components/OptimizedImage";
 
-// Force dynamic rendering to always get fresh content
-// Use ISR instead for better performance while keeping content relatively fresh
-export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+// Increase revalidation time to reduce build frequency
+// This provides a good balance between freshness and build performance
+export const revalidate = 3600; // 1 hour instead of 30 minutes
 
-// We still generate static params for all posts
+// Generate static paths more efficiently
 export async function generateStaticParams() {
   const posts = await getNotionPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  // Only return the necessary slug for static generation
+  return posts.map((post) => ({ 
+    slug: post.slug 
+  }));
 }
 
 // Uncomment this to always fetch fresh data on each request
 // export const dynamic = 'force-dynamic';
+
+// Metadata generation with caching
+const metadataCache = new Map<string, Metadata>();
 
 export async function generateMetadata(
   props: {
@@ -31,6 +37,13 @@ export async function generateMetadata(
   }
 ): Promise<Metadata | undefined> {
   const params = await props.params;
+  
+  // Check cache first
+  const cacheKey = params.slug;
+  if (metadataCache.has(cacheKey)) {
+    return metadataCache.get(cacheKey);
+  }
+  
   let post = await getNotionPost(params.slug);
 
   if (!post) {
@@ -46,7 +59,7 @@ export async function generateMetadata(
   } = post.metadata;
   let ogImage = image || `${DATA.url}/og?title=${encodeURIComponent(title)}`;
 
-  return {
+  const metadata: Metadata = {
     title,
     description,
     keywords: tags,
@@ -80,6 +93,11 @@ export async function generateMetadata(
       creator: DATA.name,
     },
   };
+  
+  // Store in cache
+  metadataCache.set(cacheKey, metadata);
+  
+  return metadata;
 }
 
 // Separate component for the post header details
