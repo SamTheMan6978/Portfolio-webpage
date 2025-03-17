@@ -24,15 +24,16 @@ export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
 // Uncomment this to always fetch fresh data on each request
 // export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: {
-    slug: string;
-  };
-}): Promise<Metadata | undefined> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{
+      slug: string;
+    }>;
+  }
+): Promise<Metadata | undefined> {
+  const params = await props.params;
   let post = await getNotionPost(params.slug);
-  
+
   if (!post) {
     return;
   }
@@ -175,13 +176,14 @@ function PostContentLoading() {
   );
 }
 
-export default async function Blog({
-  params,
-}: {
-  params: {
-    slug: string;
-  };
-}) {
+export default async function Blog(
+  props: {
+    params: Promise<{
+      slug: string;
+    }>;
+  }
+) {
+  const params = await props.params;
   // Fetch minimal post data for the header
   // This ensures the page header loads quickly
   let post = await getNotionPost(params.slug);

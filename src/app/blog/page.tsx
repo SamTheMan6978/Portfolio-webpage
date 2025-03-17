@@ -237,13 +237,14 @@ function BlogPostsLoading() {
   );
 }
 
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: { tag?: string };
-}) {
+export default async function BlogPage(
+  props: {
+    searchParams: Promise<{ tag?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const selectedTag = searchParams.tag;
-  
+
   return (
     <>
       {/* Left side particles */}
