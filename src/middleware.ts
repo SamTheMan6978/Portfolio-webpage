@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
     // Home page specific resources
     if (pathname === '/' || pathname === '') {
       criticalResources.push(
-        '/pfp.jpg; rel=preload; as=image; fetchpriority=high'
+        '/pfp.webp; rel=preload; as=image; fetchpriority=high'
       );
     }
     

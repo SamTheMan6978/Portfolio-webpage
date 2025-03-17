@@ -91,7 +91,8 @@ export default function RootLayout({
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
         
         {/* Preload critical assets */}
-        <link rel="preload" href="/pfp.jpg" as="image" fetchPriority="high" />
+        <link rel="preload" href="/pfp.webp" as="image" fetchPriority="high" />
+        <link rel="prefetch" href="/pfp-optimized.jpg" as="image" />
         
         {/* Structured data */}
         <script
