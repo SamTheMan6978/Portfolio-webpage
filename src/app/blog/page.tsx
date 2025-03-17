@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { DATA } from "@/data/resume";
 
-// Increase revalidation time for better performance
-export const revalidate = 3600; // 1 hour - reduces API calls to Notion
+// Add shorter revalidation time to match blog post pages
+export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
 
 export const metadata = {
   title: "Blog",
@@ -64,8 +64,7 @@ export default async function BlogPage({
   ).sort();
   
   // Filter posts by tag if a tag is selected
-  const params = await searchParams;
-  const selectedTag = params.tag;
+  const selectedTag = searchParams.tag;
   const filteredPosts = selectedTag
     ? posts.filter((post) => 
         post.metadata.tags?.includes(selectedTag)
