@@ -8,7 +8,6 @@ import { generatePersonSchema, generateWebSiteSchema } from "@/lib/structuredDat
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import Script from "next/script";
-import { CriticalCSS } from "@/components/critical-css";
 import "./globals.css";
 
 const fontSans = FontSans({
@@ -80,7 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <CriticalCSS />
+        {/* CriticalCSS removed */}
         
         {/* Resource hints for external domains */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
@@ -114,7 +113,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider delayDuration={0}>
             <ScrollProgress />
             {children}
