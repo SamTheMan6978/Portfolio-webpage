@@ -9,6 +9,43 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
+// Simple in-memory cache with expiration
+interface CacheEntry<T> {
+  data: T;
+  expires: number;
+}
+
+class SimpleCache {
+  private cache: Record<string, CacheEntry<any>> = {};
+  private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes default
+
+  get<T>(key: string): T | null {
+    const entry = this.cache[key];
+    if (!entry) return null;
+    
+    if (Date.now() > entry.expires) {
+      // Cache expired
+      delete this.cache[key];
+      return null;
+    }
+    
+    return entry.data as T;
+  }
+
+  set<T>(key: string, data: T, ttl: number = this.DEFAULT_TTL): void {
+    this.cache[key] = {
+      data,
+      expires: Date.now() + ttl
+    };
+  }
+
+  clear(): void {
+    this.cache = {};
+  }
+}
+
+const notionCache = new SimpleCache();
+
 export interface NotionPost {
   id: string;
   slug: string;
@@ -46,8 +83,8 @@ function handlePublishedDate(dateStr: string): string {
 }
 
 /**
- * Fetch Notion posts with fresh data each time
- * No caching to ensure we always get fresh image URLs
+ * Fetch Notion posts with intelligent caching
+ * Uses a short cache TTL to balance performance with getting fresh image URLs
  */
 export async function getNotionPosts(): Promise<{
   slug: string;
@@ -61,13 +98,33 @@ export async function getNotionPosts(): Promise<{
   source: string;
 }[]> {
   try {
+    // Generate a cache key
+    const cacheKey = 'notion_posts';
+    
+    // Check cache first with proper typing
+    const cachedData = notionCache.get<{
+      slug: string;
+      metadata: {
+        title: string;
+        publishedAt: string;
+        summary: string;
+        image?: string;
+        tags?: string[];
+      };
+      source: string;
+    }[]>(cacheKey);
+    
+    if (cachedData) {
+      console.log('[Notion] Using cached posts data');
+      return cachedData;
+    }
+    
+    console.log('[Notion] Fetching fresh posts data from API');
+    
     // Replace with your database ID and ensure correct format
     const databaseId = formatDatabaseId(process.env.NOTION_DATABASE_ID as string);
     
-    // Add a cache-busting timestamp to ensure fresh data
-    const timestamp = Date.now();
-    
-    // Query the database - ensuring we get fresh data each time
+    // Query the database
     const response = await notion.databases.query({
       database_id: databaseId,
       filter: {
@@ -130,30 +187,41 @@ export async function getNotionPosts(): Promise<{
           console.error('Error extracting properties from page:', err);
         }
         
-        // Set up a buffer to store the markdown content
-        const buffer: Record<string, string> = {};
+        // Create individual cache key for this page's content
+        const pageContentCacheKey = `notion_page_${page.id}`;
+        let contentHtml = notionCache.get<string>(pageContentCacheKey);
         
-        // Create an exporter with buffer output type
-        const exporter = new DefaultExporter({
-          outputType: 'buffer',
-          buffer
-        });
-        
-        // Create the converter with the exporter
-        const converter = new NotionConverter(notion)
-          .withExporter(exporter);
-        
-        // Convert the page to markdown
-        await converter.convert(page.id);
-        
-        // Get the markdown content from the buffer
-        const mdContent = buffer[page.id] || '';
-        
-        // Convert markdown to HTML
-        const processedContent = await remark()
-          .use(html)
-          .process(mdContent);
-        const contentHtml = processedContent.toString();
+        if (!contentHtml) {
+          // Set up a buffer to store the markdown content
+          const buffer: Record<string, string> = {};
+          
+          // Create an exporter with buffer output type
+          const exporter = new DefaultExporter({
+            outputType: 'buffer',
+            buffer
+          });
+          
+          // Create the NotionConverter with proper v4 API
+          const converter = new NotionConverter(notion);
+          
+          // Add exporter
+          converter.withExporter(exporter);
+          
+          // Convert the page to markdown
+          await converter.convert(page.id);
+          
+          // Get the markdown content from the buffer
+          const mdContent = buffer[page.id] || '';
+          
+          // Convert markdown to HTML
+          const processedContent = await remark()
+            .use(html)
+            .process(mdContent);
+          contentHtml = processedContent.toString();
+          
+          // Cache the page content with a longer TTL (10 minutes)
+          notionCache.set(pageContentCacheKey, contentHtml, 10 * 60 * 1000);
+        }
         
         // Get cover image if exists
         let coverImage;
@@ -188,6 +256,9 @@ export async function getNotionPosts(): Promise<{
         };
       })
     );
+    
+    // Cache the posts list with a short TTL (5 minutes)
+    notionCache.set(cacheKey, posts, 5 * 60 * 1000);
 
     return posts;
   } catch (error) {
@@ -198,7 +269,7 @@ export async function getNotionPosts(): Promise<{
 
 /**
  * Get a specific post by slug
- * This will fetch fresh data from Notion each time
+ * Uses the cached posts list if available
  */
 export async function getNotionPost(slug: string): Promise<{
   metadata: {
@@ -212,7 +283,6 @@ export async function getNotionPost(slug: string): Promise<{
   source: string;
 } | null> {
   try {
-    // Always get fresh posts to ensure images are not expired
     const posts = await getNotionPosts();
     const post = posts.find((post) => post.slug === slug);
     

@@ -16,9 +16,8 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// Shorter revalidation time to ensure fresh S3 links
-// This will rebuild pages more frequently to get fresh image URLs
-export const revalidate = 1800; // 30 minutes - shorter than S3 expiration
+// Add revalidation with ISR
+export const revalidate = 3600; // 1 hour
 
 // Force dynamic rendering to always get fresh content
 // Uncomment this to always fetch fresh data on each request

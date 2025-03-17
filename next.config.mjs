@@ -19,10 +19,6 @@ const nextConfig = {
   // Performance optimizations
   poweredByHeader: false, // Remove X-Powered-By header
   compress: true, // Enable gzip compression
-  swcMinify: true, // Use SWC minifier for faster builds
-  
-  // Font optimization is now part of the main config, not experimental
-  optimizeFonts: true,
   
   // URL Canonicalization
   async redirects() {
