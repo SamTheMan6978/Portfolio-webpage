@@ -85,11 +85,15 @@ export default function RootLayout({
         {/* Resource hints for external domains */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         
         {/* Add browser hint for faster connections */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
         
+        {/* Preload critical assets */}
+        <link rel="preload" href="/pfp.jpg" as="image" fetchPriority="high" />
         
+        {/* Structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generatePersonSchema() }}
@@ -98,9 +102,10 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generateWebSiteSchema() }}
         />
+        
+        {/* Font preconnect - placed before any other font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" href="/pfp.jpg" as="image" />
       </head>
       <body
         className={cn(
@@ -115,6 +120,8 @@ export default function RootLayout({
             <Navbar />
           </TooltipProvider>
         </ThemeProvider>
+        
+        {/* Analytics scripts with lazyOnload strategy */}
         <Script
           src="https://www.googletagmanager.com/gtag/js"
           strategy="lazyOnload"

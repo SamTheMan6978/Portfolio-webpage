@@ -21,6 +21,7 @@ export async function middleware(request: NextRequest) {
   try {
     const url = request.nextUrl.clone();
     const hostname = request.headers.get('host') || '';
+    const pathname = request.nextUrl.pathname;
     
     // WWW to non-WWW redirect
     if (hostname.startsWith('www.') && hostname.includes('samiis.cool')) {
@@ -34,14 +35,40 @@ export async function middleware(request: NextRequest) {
       );
     }
     
-    // Get the pathname of the request
-    const pathname = request.nextUrl.pathname;
-    
-    // You can use edge config to store redirects, feature flags, etc.
-    // const redirects = await get('redirects');
-    
     // Add security headers to the response
     const response = NextResponse.next();
+    
+    // Performance optimizations
+    
+    // Define critical resources based on the path
+    const criticalResources = [];
+    
+    // Always include critical CSS and fonts
+    criticalResources.push(
+      '/_next/static/css/app.css; rel=preload; as=style; fetchpriority=high',
+      '/_next/static/css/main.css; rel=preload; as=style; fetchpriority=high',
+      '</fonts/inter.woff2>; rel=preload; as=font; crossorigin=anonymous; fetchpriority=high',
+      '</fonts/inter-bold.woff2>; rel=preload; as=font; crossorigin=anonymous; fetchpriority=high'
+    );
+    
+    // Home page specific resources
+    if (pathname === '/' || pathname === '') {
+      criticalResources.push(
+        '/pfp.jpg; rel=preload; as=image; fetchpriority=high'
+      );
+    }
+    
+    // Add priority hints for main JS bundle
+    criticalResources.push(
+      '/_next/static/chunks/main.js; rel=preload; as=script; fetchpriority=high',
+      '/_next/static/chunks/pages/_app.js; rel=preload; as=script; fetchpriority=high'
+    );
+    
+    // Set resource hints with early hints
+    response.headers.set('Link', criticalResources.join(', '));
+    
+    // Add priority hints header
+    response.headers.set('Priority-Hints', 'on');
     
     // Security headers
     response.headers.set('X-DNS-Prefetch-Control', 'on');
@@ -51,7 +78,7 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
     
-    // Content Security Policy
+    // Content Security Policy with resource prioritization
     response.headers.set(
       'Content-Security-Policy',
       "default-src 'self'; img-src 'self' data: *.amazonaws.com *.notion.so; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'"

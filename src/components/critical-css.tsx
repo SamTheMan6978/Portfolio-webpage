@@ -14,6 +14,10 @@ const criticalStyles = `
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    background-color: hsl(224, 71%, 4%);
+    color: hsl(213, 31%, 91%);
+    font-family: var(--font-sans, system-ui, sans-serif);
+    transition: background-color 0.3s ease;
   }
   
   /* Critical layout styles */
@@ -42,6 +46,30 @@ const criticalStyles = `
     margin-top: 2.5rem;
   }
   
+  /* Additional above-the-fold styles */
+  .py-12 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  .px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  /* Avatar and header styles */
+  .h-20 {
+    height: 5rem;
+  }
+  
+  .w-20 {
+    width: 5rem;
+  }
+  
+  .rounded-full {
+    border-radius: 9999px;
+  }
+  
   /* Dark mode base styling */
   .dark {
     color-scheme: dark;
@@ -65,13 +93,14 @@ export function CriticalCSS() {
         link.setAttribute('media', 'all');
       });
     };
-
-    // Check if the document is already complete or use load event
-    if (document.readyState === 'complete') {
-      loadNonCriticalCSS();
+    
+    // Load non-critical CSS with requestIdleCallback or setTimeout fallback
+    if ('requestIdleCallback' in window) {
+      // Use requestIdleCallback to load non-critical CSS when browser is idle
+      window.requestIdleCallback(loadNonCriticalCSS);
     } else {
-      window.addEventListener('load', loadNonCriticalCSS);
-      return () => window.removeEventListener('load', loadNonCriticalCSS);
+      // Fallback to setTimeout
+      setTimeout(loadNonCriticalCSS, 1000);
     }
   }, []);
 
