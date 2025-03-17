@@ -146,7 +146,7 @@ export const DATA = {
     {
       title: "Gym Website",
       href: "https://github.com/SamTheMan6978/CSIT128-Website",
-      dates: "August 2024",
+      dates: "June 2023",
       active: true,
       description:
         "Developed a gym website using HTML, CSS, and JavaScript as part of a group project for CSIT128.",
