@@ -64,7 +64,8 @@ export default async function BlogPage({
   ).sort();
   
   // Filter posts by tag if a tag is selected
-  const selectedTag = searchParams.tag;
+  const params = await searchParams;
+  const selectedTag = params.tag;
   const filteredPosts = selectedTag
     ? posts.filter((post) => 
         post.metadata.tags?.includes(selectedTag)
