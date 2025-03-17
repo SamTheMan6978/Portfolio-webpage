@@ -82,6 +82,99 @@ export async function generateMetadata({
   };
 }
 
+// Separate component for the post header details
+function PostHeader({ 
+  title, 
+  publishedAt, 
+  breadcrumbs 
+}: { 
+  title: string; 
+  publishedAt: string; 
+  breadcrumbs: { name: string; href: string }[] 
+}) {
+  return (
+    <div className="mb-8">
+            
+      {/* Post Title */}
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
+        {title}
+      </h1>
+      
+      {/* Publication Date */}
+      <time dateTime={publishedAt} className="text-muted-foreground">
+        {new Date(publishedAt).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        })}
+      </time>
+    </div>
+  );
+}
+
+// Separate component for post content that can be lazy loaded
+async function PostContent({ slug }: { slug: string }) {
+  const post = await getNotionPost(slug);
+  
+  if (!post) {
+    return <div>Post not found</div>;
+  }
+  
+  return (
+    <>
+      {/* Post Tags */}
+      {post.metadata.tags && post.metadata.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {post.metadata.tags.map((tag) => (
+            <Link
+              key={tag}
+              href={`/blog?tag=${encodeURIComponent(tag)}`}
+              className="text-xs bg-muted px-2 py-1 rounded-full hover:bg-muted/80"
+            >
+              {tag}
+            </Link>
+          ))}
+        </div>
+      )}
+      
+      {/* Main Content */}
+      <article className="prose prose-zinc dark:prose-invert max-w-none">
+        <div dangerouslySetInnerHTML={{ __html: post.source }} />
+      </article>
+    </>
+  );
+}
+
+// Loading placeholder for post content
+function PostContentLoading() {
+  return (
+    <div className="animate-pulse space-y-4">
+      {/* Reduced tag loading placeholders to just 2 */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        <div className="bg-muted rounded-full px-2 py-1 w-36 h-6"></div>
+        <div className="bg-muted rounded-full px-2 py-1 w-36 h-6"></div>
+      </div>
+      
+      {/* Content loading placeholders - better matching the prose content */}
+      <div className="h-5 bg-muted rounded w-full mb-3"></div>
+      <div className="h-5 bg-muted rounded w-5/6 mb-3"></div>
+      <div className="h-5 bg-muted rounded w-4/6 mb-6"></div>
+      <div className="h-5 bg-muted rounded w-full mb-3"></div>
+      <div className="h-5 bg-muted rounded w-full mb-3"></div>
+      <div className="h-5 bg-muted rounded w-5/6 mb-3"></div>
+      <div className="h-5 bg-muted rounded w-4/6 mb-3"></div>
+      
+      {/* Image placeholder */}
+      <div className="h-48 bg-muted rounded w-full mb-6"></div>
+      
+      {/* More text placeholders */}
+      <div className="h-5 bg-muted rounded w-full mb-3"></div>
+      <div className="h-5 bg-muted rounded w-5/6 mb-3"></div>
+      <div className="h-5 bg-muted rounded w-full mb-3"></div>
+    </div>
+  );
+}
+
 export default async function Blog({
   params,
 }: {
@@ -89,8 +182,8 @@ export default async function Blog({
     slug: string;
   };
 }) {
-  // Every time this page loads, it will fetch fresh data from Notion
-  // This ensures we always get the latest S3 image URLs that haven't expired
+  // Fetch minimal post data for the header
+  // This ensures the page header loads quickly
   let post = await getNotionPost(params.slug);
 
   if (!post) {
@@ -99,37 +192,33 @@ export default async function Blog({
 
   // Define breadcrumbs for structured data and UI
   const breadcrumbs = [
-    { name: 'Home', url: DATA.url },
-    { name: 'Blog', url: `${DATA.url}/blog` },
-    { name: post.metadata.title, url: `${DATA.url}/blog/${post.slug}` }
+    { name: 'Home', href: '/' },
+    { name: 'Blog', href: '/blog' },
+    { name: post.metadata.title, href: `/blog/${post.slug}` },
   ];
+
+  // Generate structured data
+  const structuredData = {
+    article: generateBlogPostStructuredData({
+      title: post.metadata.title,
+      description: post.metadata.summary || '',
+      publishedAt: post.metadata.publishedAt,
+      updatedAt: post.metadata.publishedAt, // Use publishedAt as a fallback
+      image: post.metadata.image,
+      slug: post.slug, // Add required slug property
+      tags: post.metadata.tags,
+    }),
+    breadcrumb: generateBreadcrumbStructuredData({
+      items: breadcrumbs.map((crumb) => ({
+        name: crumb.name,
+        url: `${DATA.url}${crumb.href}`,
+      }))
+    }),
+  };
 
   return (
     <>
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: generateBlogPostStructuredData({
-            title: post.metadata.title,
-            description: post.metadata.summary,
-            publishedAt: post.metadata.publishedAt,
-            image: post.metadata.image,
-            slug: post.slug,
-            tags: post.metadata.tags,
-          }),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: generateBreadcrumbStructuredData({
-            items: breadcrumbs,
-          }),
-        }}
-      />
-
-      {/* Left side particles */}
+      {/* Background particles on sides */}
       <div className="fixed left-0 top-0 bottom-0 w-1/6 z-0 pointer-events-none">
         <Particles
           className="h-full"
@@ -139,8 +228,6 @@ export default async function Blog({
           color="#64748b"
         />
       </div>
-      
-      {/* Right side particles */}
       <div className="fixed right-0 top-0 bottom-0 w-1/6 z-0 pointer-events-none">
         <Particles
           className="h-full"
@@ -151,96 +238,37 @@ export default async function Blog({
         />
       </div>
       
-      {/* Main content */}
-      <section id="blog" className="relative z-10 mx-auto max-w-3xl px-4 py-8">
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BlogPosting",
-              headline: post.metadata.title,
-              datePublished: post.metadata.publishedAt,
-              dateModified: post.metadata.publishedAt,
-              description: post.metadata.summary,
-              image: post.metadata.image || `${DATA.url}/og?title=${encodeURIComponent(post.metadata.title)}`,
-              url: `${DATA.url}/blog/${post.slug}`,
-              author: {
-                "@type": "Person",
-                name: DATA.name,
-                url: DATA.url,
-              },
-              publisher: {
-                "@type": "Person",
-                name: DATA.name,
-                url: DATA.url,
-              },
-              keywords: post.metadata.tags?.join(", ") || "",
-              mainEntityOfPage: {
-                "@type": "WebPage",
-                "@id": `${DATA.url}/blog/${post.slug}`,
-              }
-            }),
-          }}
+      {/* Structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
+      
+      <div className="relative z-10 mx-auto max-w-3xl px-4 py-8">
+        {/* Header loads immediately - no suspense */}
+        <PostHeader 
+          title={post.metadata.title} 
+          publishedAt={post.metadata.publishedAt}
+          breadcrumbs={breadcrumbs}
         />
         
-        {/* Article header */}
-        <div className="mb-10 space-y-4">
-          <h1 className="font-medium text-3xl md:text-4xl tracking-tighter max-w-[650px]">
-            {post.metadata.title}
-          </h1>
-          
-          <div className="flex items-center space-x-4">
-            <Suspense fallback={<div className="h-5 w-20 animate-pulse bg-muted rounded" />}>
-              <p className="text-sm text-muted-foreground">
-                {formatDate(post.metadata.publishedAt)}
-              </p>
-            </Suspense>
-            
-            {post.metadata.summary && (
-              <p className="text-sm text-muted-foreground italic border-l border-border pl-4">
-                {post.metadata.summary}
-              </p>
-            )}
-          </div>
-          
-          {/* Display tags if they exist */}
-          {post.metadata.tags && post.metadata.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {post.metadata.tags.map((tag) => (
-                <Link
-                  key={tag}
-                  href={`/blog?tag=${encodeURIComponent(tag)}`}
-                  className={cn(
-                    "px-3 py-1 text-xs rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                  )}
-                >
-                  {tag}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {/* Main content */}
-        <article className="prose prose-slate dark:prose-invert max-w-full 
-          prose-headings:font-medium 
-          prose-h1:text-3xl prose-h1:font-bold
-          prose-h2:text-2xl prose-h2:font-bold 
-          prose-h3:text-xl prose-h3:font-semibold
-          prose-a:text-primary 
-          prose-img:rounded-lg">
-          <div dangerouslySetInnerHTML={{ __html: post.source }} />
-        </article>
+        {/* Content loads with suspense */}
+        <Suspense fallback={<PostContentLoading />}>
+          <PostContent slug={params.slug} />
+        </Suspense>
         
         {/* Back link */}
-        <div className="mt-12 pt-6 border-t border-border">
-          <a href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <div className="mt-12 pt-6 border-t">
+          <Link
+            href="/blog"
+            className="text-primary hover:text-primary/80 transition-colors"
+          >
             ← Back to all posts
-          </a>
+          </Link>
         </div>
-      </section>
+      </div>
     </>
   );
 }
