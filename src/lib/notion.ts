@@ -12,6 +12,13 @@ const notion = new Client({
 // Simple in-memory cache for HTML content
 const htmlCache = new Map<string, string>();
 
+// Add persistent cache for posts
+const postsCache = {
+  data: null as any[] | null,
+  lastFetched: 0,
+  expiryTime: 3600000, // 1 hour in milliseconds
+};
+
 export interface NotionPost {
   id: string;
   slug: string;
@@ -49,8 +56,7 @@ function handlePublishedDate(dateStr: string): string {
 }
 
 /**
- * Fetch Notion posts with fresh data each time
- * No caching to ensure we always get fresh image URLs
+ * Fetch Notion posts with caching
  */
 export async function getNotionPosts(): Promise<{
   slug: string;
@@ -64,10 +70,16 @@ export async function getNotionPosts(): Promise<{
   source: string;
 }[]> {
   try {
+    // Check cache first
+    const now = Date.now();
+    if (postsCache.data && (now - postsCache.lastFetched < postsCache.expiryTime)) {
+      return postsCache.data;
+    }
+
     // Replace with your database ID and ensure correct format
     const databaseId = formatDatabaseId(process.env.NOTION_DATABASE_ID as string);
     
-    // Query the database - ensuring we get fresh data each time
+    // Query the database
     const response = await notion.databases.query({
       database_id: databaseId,
       filter: {
@@ -202,6 +214,10 @@ export async function getNotionPosts(): Promise<{
       })
     );
 
+    // Update cache before returning
+    postsCache.data = posts;
+    postsCache.lastFetched = now;
+    
     return posts;
   } catch (error) {
     console.error('Error fetching Notion posts:', error);
