@@ -8,6 +8,7 @@ import { generatePersonSchema, generateWebSiteSchema } from "@/lib/structuredDat
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const fontSans = FontSans({
@@ -118,6 +119,7 @@ export default function RootLayout({
             <ScrollProgress />
             {children}
             <Navbar />
+            <SpeedInsights />
           </TooltipProvider>
         </ThemeProvider>
         
