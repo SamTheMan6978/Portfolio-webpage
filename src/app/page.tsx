@@ -11,6 +11,7 @@ import Link from "next/link";
 import Markdown from "react-markdown";
 import { Metadata } from "next";
 import { MapPin } from "lucide-react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -77,6 +78,7 @@ export default function Page() {
         ease={50}
         color="#64748b"
       />
+      <SpeedInsights />
       <main className="flex flex-col min-h-[100dvh] space-y-10">
         <section id="hero">
           <div className="mx-auto w-full max-w-2xl space-y-8">
